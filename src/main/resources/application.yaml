@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: trpo
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+    springframework: DEBUG
