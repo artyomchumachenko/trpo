@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
+/**
+ * Класс данных ответа от анализатора текста на Python
+ */
 @Data
 public class SentenceResponseDto {
     private String sentence;

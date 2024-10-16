@@ -13,6 +13,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Аспект для логирования запросов и ответов от RestController`ов и Service`ов
+ */
 @Aspect
 @Component
 @Slf4j

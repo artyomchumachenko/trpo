@@ -1,10 +1,10 @@
 package ru.mai.trpo;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class TrpoApplicationTests {
+import ru.mai.trpo.integration.AbstractIntegrationTest;
+
+class TrpoApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {

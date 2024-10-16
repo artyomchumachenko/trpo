@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import ru.mai.trpo.dto.TextAnalyzeResponseDto;
+import ru.mai.trpo.dto.SentenceResponseDto;
 import ru.mai.trpo.service.TextAnalyzeService;
 
 import static org.mockito.Mockito.when;
@@ -42,7 +42,7 @@ public class TextAnalyzeControllerTest {
         String mockJsonResponse = getMockAnalyzeResponse();
 
         // Преобразование JSON в объект TextAnalyzeResponseDto
-        TextAnalyzeResponseDto responseDto = objectMapper.readValue(mockJsonResponse, TextAnalyzeResponseDto.class);
+        SentenceResponseDto[] responseDto = objectMapper.readValue(mockJsonResponse, SentenceResponseDto[].class);
 
         // Мок ответа сервиса
         when(textAnalyzeService.analyzeText(file))
@@ -54,18 +54,17 @@ public class TextAnalyzeControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.sentences[0].sentence").value("Тонкий луч утреннего солнца пробился сквозь занавеску и осветил старую книгу, лежащую на пыльной полке."))
-                .andExpect(jsonPath("$.sentences[0].words[0]").value("Тонкий"))
-                .andExpect(jsonPath("$.sentences[0].lemmas[0]").value("тонкий"))
-                .andExpect(jsonPath("$.sentences[0].pos_tags[0]").value("ADJ"))
-                .andExpect(jsonPath("$.sentences[0].dep_tags[0]").value("Определение"))
-                .andExpect(jsonPath("$.sentences[0].head_id[0]").value(2));
+                .andExpect(jsonPath("$.[0].sentence").value("Тонкий луч утреннего солнца пробился сквозь занавеску и осветил старую книгу, лежащую на пыльной полке."))
+                .andExpect(jsonPath("$.[0].words[0]").value("Тонкий"))
+                .andExpect(jsonPath("$.[0].lemmas[0]").value("тонкий"))
+                .andExpect(jsonPath("$.[0].pos_tags[0]").value("ADJ"))
+                .andExpect(jsonPath("$.[0].dep_tags[0]").value("Определение"))
+                .andExpect(jsonPath("$.[0].head_id[0]").value(2));
     }
 
     private String getMockAnalyzeResponse() {
         return """
-            {
-                "sentences": [
+                [
                     {
                         "sentence": "Тонкий луч утреннего солнца пробился сквозь занавеску и осветил старую книгу, лежащую на пыльной полке.",
                         "words": [
@@ -165,7 +164,6 @@ public class TextAnalyzeControllerTest {
                         ]
                     }
                 ]
-            }
                 """;
     }
 }

@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import ru.mai.trpo.dto.TextAnalyzeResponseDto;
+import ru.mai.trpo.dto.SentenceResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Класс контроллер с ответами "заглушками" для имитации работы эндпоинтов приложения
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mock")
@@ -22,10 +25,10 @@ public class MockController {
     private final ObjectMapper objectMapper;
 
     @PostMapping("/analyze")
-    public ResponseEntity<TextAnalyzeResponseDto> analyzeText(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<SentenceResponseDto[]> analyzeText(@RequestParam("file") MultipartFile file) {
         try {
             return ResponseEntity.ok(
-                    objectMapper.readValue(getMockAnalyzeResponse(), TextAnalyzeResponseDto.class)
+                    objectMapper.readValue(getMockAnalyzeResponse(), SentenceResponseDto[].class)
             );
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -34,8 +37,7 @@ public class MockController {
 
     private String getMockAnalyzeResponse() {
         return """
-            {
-                "sentences": [
+                [
                     {
                         "sentence": "Тонкий луч утреннего солнца пробился сквозь занавеску и осветил старую книгу, лежащую на пыльной полке.",
                         "words": [
@@ -135,7 +137,6 @@ public class MockController {
                         ]
                     }
                 ]
-            }
                 """;
     }
 }
