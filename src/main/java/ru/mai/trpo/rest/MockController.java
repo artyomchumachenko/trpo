@@ -35,7 +35,7 @@ public class MockController {
         }
     }
 
-    private String getMockAnalyzeResponse() {
+    public static String getMockAnalyzeResponse() {
         return """
                 [
                     {
