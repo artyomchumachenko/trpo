@@ -1,4 +1,4 @@
-package ru.mai.trpo.dto;
+package ru.mai.trpo.dto.integration;
 
 import java.util.List;
 

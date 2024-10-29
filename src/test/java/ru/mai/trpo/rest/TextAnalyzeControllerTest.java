@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import ru.mai.trpo.dto.SentenceResponseDto;
+import ru.mai.trpo.dto.integration.SentenceResponseDto;
 import ru.mai.trpo.service.TextAnalyzeService;
 
 import static org.mockito.Mockito.when;

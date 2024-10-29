@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ru.mai.trpo.client.TextAnalyzePyModelClient;
-import ru.mai.trpo.dto.SentenceResponseDto;
+import ru.mai.trpo.dto.integration.SentenceResponseDto;
 import ru.mai.trpo.dto.integration.TextRequestDto;
 
 import lombok.RequiredArgsConstructor;

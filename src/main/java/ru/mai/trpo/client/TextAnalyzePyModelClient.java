@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import ru.mai.trpo.configuration.RestTemplateLoggingInterceptor;
-import ru.mai.trpo.dto.SentenceResponseDto;
+import ru.mai.trpo.dto.integration.SentenceResponseDto;
 import ru.mai.trpo.dto.integration.TextRequestDto;
 
 import lombok.extern.slf4j.Slf4j;
