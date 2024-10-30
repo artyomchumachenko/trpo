@@ -1,7 +1,6 @@
 package ru.mai.trpo.service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class TextAnalyzeService {
 
     private final TextAnalyzePyModelClient client;
+    private final FileTextExtractor extractor;
 
     // Инжектируем репозитории
     private final TextRepository textRepository;
@@ -50,7 +50,7 @@ public class TextAnalyzeService {
      * @return Результат анализа
      */
     public SentenceResponseDto[] analyzeText(MultipartFile file) {
-        String textContent = extractTextFromFile(file);
+        String textContent = extractor.extractTextFromFile(file);
 
         // Сохраняем информацию о тексте
         Text text = new Text();
@@ -142,19 +142,5 @@ public class TextAnalyzeService {
         wordRepository.saveAll(words);
 
         return response;
-    }
-
-    /**
-     * Извлечь текст из файла
-     * @param file Файл с текстом
-     * @return Строка с текстом
-     */
-    private String extractTextFromFile(MultipartFile file) {
-        try {
-            // Преобразуем содержимое файла в строку
-            return new String(file.getBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при чтении файла", e);
-        }
     }
 }
