@@ -1,15 +1,17 @@
 package ru.mai.trpo.configuration;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.StreamUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,11 +51,20 @@ public class RestTemplateLoggingInterceptor implements ClientHttpRequestIntercep
      * @param response Объект ответа
      */
     private void logResponseDetails(ClientHttpResponse response) throws IOException {
-        String responseBody = new BufferedReader(new InputStreamReader(response.getBody(), StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining("\n"));
-        log.info("Response Status Code: {}", response.getStatusCode());
-        log.info("Response Headers: {}", response.getHeaders());
-        log.info("Response Body: {}", responseBody);
+        String responseBody = StreamUtils.copyToString(response.getBody(), StandardCharsets.UTF_8); // Указываем UTF-8
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.getFactory().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+            Object json = mapper.readValue(responseBody, Object.class);
+            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+            String prettyResponseBody = writer.writeValueAsString(json);
+            log.info("Response Status Code: {}", response.getStatusCode());
+            log.info("Response Headers: {}", response.getHeaders());
+            log.info("Response Body: {}", prettyResponseBody);
+        } catch (Exception e) {
+            log.info("Response Status Code: {}", response.getStatusCode());
+            log.info("Response Headers: {}", response.getHeaders());
+            log.info("Response Body: {}", responseBody);
+        }
     }
 }

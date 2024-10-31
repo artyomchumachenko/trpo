@@ -1,7 +1,16 @@
 package ru.mai.trpo.client;
 
+import java.nio.charset.StandardCharsets;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,6 +37,14 @@ public class TextAnalyzePyModelClient {
         this.restTemplate = restTemplateBuilder
                 .rootUri(properties.url()) // Установка базового URL
                 .interceptors(new RestTemplateLoggingInterceptor()) // Логгер-перехватчик REST запросов
+                .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
+                // Настройка для обработки UTF-8
+                .additionalMessageConverters(
+                        new MappingJackson2HttpMessageConverter(
+                                new ObjectMapper().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false)
+                        ),
+                        new StringHttpMessageConverter(StandardCharsets.UTF_8)
+                )
                 .build();
     }
 
