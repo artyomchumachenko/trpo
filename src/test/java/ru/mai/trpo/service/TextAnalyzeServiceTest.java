@@ -37,6 +37,9 @@ class TextAnalyzeServiceTest {
     private TextAnalyzeService textAnalyzeService;
 
     @Mock
+    private FileTextExtractor fileTextExtractor;
+
+    @Mock
     private TextAnalyzePyModelClient client;
 
     @Mock
@@ -86,6 +89,7 @@ class TextAnalyzeServiceTest {
         // Мокаем client.analyzeText(requestDto)
         SentenceResponseDto[] mockResponse = getMockAnalyzeResponse();
         when(client.analyzeText(any(TextRequestDto.class))).thenReturn(mockResponse);
+        when(fileTextExtractor.extractTextFromFile(file)).thenReturn(fileContent);
 
         // Мокаем сохранение текста
         when(textRepository.save(any(Text.class))).thenAnswer(invocation -> {

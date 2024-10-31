@@ -51,6 +51,13 @@ public class TextAnalyzeService {
      */
     public SentenceResponseDto[] analyzeText(MultipartFile file) {
         String textContent = extractor.extractTextFromFile(file);
+        // Конструирование объекта запроса на анализ текста в PyModel
+        TextRequestDto requestDto = TextRequestDto.builder()
+                .text(textContent)
+                .build();
+
+        // Отправка запроса в PyModel клиент на анализ текста
+        SentenceResponseDto[] response = client.analyzeText(requestDto);
 
         // Сохраняем информацию о тексте
         Text text = new Text();
@@ -71,14 +78,6 @@ public class TextAnalyzeService {
         Map<String, SyntacticRole> syntacticRoleMap = syntacticRoleRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(SyntacticRole::getCode, Function.identity()));
-
-        // Конструирование объекта запроса на анализ текста в PyModel
-        TextRequestDto requestDto = TextRequestDto.builder()
-                .text(textContent)
-                .build();
-
-        // Отправка запроса в PyModel клиент на анализ текста
-        SentenceResponseDto[] response = client.analyzeText(requestDto);
 
         // Обработка и сохранение предложений и слов
         int sentenceNumber = 1;

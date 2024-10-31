@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import ru.mai.trpo.configuration.RestTemplateLoggingInterceptor;
+import ru.mai.trpo.configuration.properties.PyModelProperties;
 import ru.mai.trpo.dto.integration.SentenceResponseDto;
 import ru.mai.trpo.dto.integration.TextRequestDto;
 
@@ -23,8 +24,9 @@ public class TextAnalyzePyModelClient {
      */
     private final RestTemplate restTemplate;
 
-    public TextAnalyzePyModelClient(RestTemplateBuilder restTemplateBuilder) {
+    public TextAnalyzePyModelClient(RestTemplateBuilder restTemplateBuilder, PyModelProperties properties) {
         this.restTemplate = restTemplateBuilder
+                .rootUri(properties.url()) // Установка базового URL
                 .interceptors(new RestTemplateLoggingInterceptor()) // Логгер-перехватчик REST запросов
                 .build();
     }
@@ -35,9 +37,8 @@ public class TextAnalyzePyModelClient {
      * @return Массив проанализированных предложений с помощью PyModel
      */
     public SentenceResponseDto[] analyzeText(TextRequestDto requestDto) {
-        String url = "http://localhost:5000/process";
         ResponseEntity<SentenceResponseDto[]>
-                response = restTemplate.postForEntity(url, requestDto, SentenceResponseDto[].class);
+                response = restTemplate.postForEntity("/process", requestDto, SentenceResponseDto[].class);
         return response.getBody();
     }
 }

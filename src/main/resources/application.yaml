@@ -5,3 +5,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+ai-model:
+  client:
+    url: ${AI_MODEL_CLIENT_URL}
