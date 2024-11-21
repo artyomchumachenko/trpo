@@ -9,3 +9,10 @@ spring:
 ai-model:
   client:
     url: ${AI_MODEL_CLIENT_URL}
+
+jwt:
+  secret: ${JWT_SECRET_KEY:aD8@fh!2B9#xL35M$eKp1nRz6wX*3S9mG&L7qP0Z@cJ5hQ2VjN%o7tU8VrX$kT3Q}
+  expiration: ${JWT_EXPIRATION:86400000} # по дефолту 24 часа
+
+outside-requests:
+  front: ${OUTSIDE_REQUESTS_FRONT:http://localhost:3000}

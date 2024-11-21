@@ -28,4 +28,8 @@ public class Text {
 
     @OneToMany(mappedBy = "text", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sentence> sentences;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
