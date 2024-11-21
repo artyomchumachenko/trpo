@@ -1,5 +1,6 @@
 package ru.mai.trpo.service;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import ru.mai.trpo.model.User;
@@ -19,5 +20,10 @@ public class UserService {
 
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь с именем " + username + " не найден"));
     }
 }

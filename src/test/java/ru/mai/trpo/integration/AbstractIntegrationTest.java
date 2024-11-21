@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public abstract class AbstractIntegrationTest {
 
-    protected static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:11")
+    protected static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:13")
             .withDatabaseName("testdb")
             .withUsername("testuser")
             .withPassword("testpass");

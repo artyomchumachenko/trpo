@@ -21,6 +21,7 @@ import ru.mai.trpo.model.PosTag;
 import ru.mai.trpo.model.Sentence;
 import ru.mai.trpo.model.SyntacticRole;
 import ru.mai.trpo.model.Text;
+import ru.mai.trpo.model.User;
 import ru.mai.trpo.model.Word;
 import ru.mai.trpo.repository.PosTagRepository;
 import ru.mai.trpo.repository.SentenceRepository;
@@ -38,6 +39,9 @@ class TextAnalyzeServiceTest {
 
     @Mock
     private FileTextExtractor fileTextExtractor;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private TextAnalyzePyModelClient client;
@@ -109,9 +113,10 @@ class TextAnalyzeServiceTest {
         // Мокаем сохранение предложений и слов
         when(sentenceRepository.saveAll(anyList())).thenReturn(null);
         when(wordRepository.saveAll(anyList())).thenReturn(null);
+        when(userService.getUserByUsername(any())).thenReturn(new User("testuser", "testpassword", "testemail"));
 
         // Вызов тестируемого метода
-        SentenceResponseDto[] result = textAnalyzeService.analyzeText(file);
+        SentenceResponseDto[] result = textAnalyzeService.analyzeText(file, any());
 
         // Проверка результата
         assertNotNull(result);

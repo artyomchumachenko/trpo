@@ -6,7 +6,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-import ru.mai.trpo.model.Sentence;
 import ru.mai.trpo.model.Word;
 
 import jakarta.persistence.Tuple;
@@ -31,4 +30,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
         GROUP BY w.wordText, sr.description
         """)
     List<Tuple> findRawWordStatistics();
+
+    List<Word> findBySentenceSentenceId(Long sentenceId);
 }

@@ -8,6 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "texts")
 @Data
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class Text {
@@ -27,9 +28,11 @@ public class Text {
     private LocalDateTime uploadDate = LocalDateTime.now();
 
     @OneToMany(mappedBy = "text", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Sentence> sentences;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 }

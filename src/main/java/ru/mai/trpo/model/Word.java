@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "words")
 @Data
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class Word {
@@ -17,6 +18,7 @@ public class Word {
 
     @ManyToOne
     @JoinColumn(name = "sentence_id", nullable = false)
+    @ToString.Exclude
     private Sentence sentence;
 
     @Column(name = "word_text", nullable = false)
@@ -27,9 +29,11 @@ public class Word {
 
     @ManyToOne
     @JoinColumn(name = "pos_tag_id")
+    @ToString.Exclude
     private PosTag posTag;
 
     @ManyToOne
     @JoinColumn(name = "syntactic_role_id")
+    @ToString.Exclude
     private SyntacticRole syntacticRole;
 }

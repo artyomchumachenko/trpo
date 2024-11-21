@@ -18,6 +18,7 @@ import ru.mai.trpo.model.PosTag;
 import ru.mai.trpo.model.Sentence;
 import ru.mai.trpo.model.SyntacticRole;
 import ru.mai.trpo.model.Text;
+import ru.mai.trpo.model.User;
 import ru.mai.trpo.model.Word;
 import ru.mai.trpo.repository.PosTagRepository;
 import ru.mai.trpo.repository.SentenceRepository;
@@ -51,7 +52,7 @@ public class TextAnalyzeService {
      * @param file Файл с текстом
      * @return Результат анализа
      */
-    public SentenceResponseDto[] analyzeText(MultipartFile file) {
+    public SentenceResponseDto[] analyzeText(MultipartFile file, User user) {
         log.info("Start analyze processing for file: {} in Service", file.getOriginalFilename());
         String textContent = extractor.extractTextFromFile(file);
         log.info("Text content extract success for file: {}", file.getOriginalFilename());
@@ -62,6 +63,13 @@ public class TextAnalyzeService {
 
         // Отправка запроса в PyModel клиент на анализ текста
         SentenceResponseDto[] response = client.analyzeText(requestDto);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        SentenceResponseDto[] response;
+//        try {
+//            response = objectMapper.readValue(MockController.getMockAnalyzeResponse(), SentenceResponseDto[].class);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
         log.info("Response from AI model success received for file: {}, response: {}", file.getOriginalFilename(), response);
 
         // Сохраняем информацию о тексте
@@ -73,6 +81,7 @@ public class TextAnalyzeService {
             throw new RuntimeException(e);
         }
         text.setUploadDate(LocalDateTime.now());
+        text.setUser(user);
         log.info("Save text: {} to table - texts", text);
         text = textRepository.save(text); // Сохраняем и получаем сгенерированный ID
 

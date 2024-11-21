@@ -7,6 +7,7 @@ import java.util.List;
 @Entity
 @Table(name = "sentences")
 @Data
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class Sentence {
@@ -18,6 +19,7 @@ public class Sentence {
 
     @ManyToOne
     @JoinColumn(name = "text_id", nullable = false)
+    @ToString.Exclude
     private Text text;
 
     @Column(name = "content", nullable = false)
@@ -27,5 +29,6 @@ public class Sentence {
     private Integer sentenceNumber;
 
     @OneToMany(mappedBy = "sentence", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Word> words;
 }

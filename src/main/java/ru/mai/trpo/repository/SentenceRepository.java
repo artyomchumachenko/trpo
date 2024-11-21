@@ -7,5 +7,5 @@ import ru.mai.trpo.model.Sentence;
 import ru.mai.trpo.model.Text;
 
 public interface SentenceRepository extends JpaRepository<Sentence, Long> {
-    List<Sentence> findByText(Text text);
+    List<Sentence> findByTextTextId(Long textId);
 }

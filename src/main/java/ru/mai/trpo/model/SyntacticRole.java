@@ -7,6 +7,7 @@ import java.util.List;
 @Entity
 @Table(name = "syntactic_roles")
 @Data
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class SyntacticRole {
@@ -23,5 +24,6 @@ public class SyntacticRole {
     private String description;
 
     @OneToMany(mappedBy = "syntacticRole")
+    @ToString.Exclude
     private List<Word> words;
 }

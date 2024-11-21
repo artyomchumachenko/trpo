@@ -7,6 +7,7 @@ import java.util.List;
 @Entity
 @Table(name = "pos_tags")
 @Data
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class PosTag {
@@ -23,5 +24,6 @@ public class PosTag {
     private String description;
 
     @OneToMany(mappedBy = "posTag")
+    @ToString.Exclude
     private List<Word> words;
 }
