@@ -36,8 +36,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Устанавливаем политику сессии
                 .authorizeHttpRequests(auth -> auth
+                        // Allow unauthenticated access to login and registration endpoints
                         .requestMatchers("/api/user/login", "/api/user/registration").permitAll()
-                        .anyRequest().authenticated()) // Все остальные запросы требуют аутентификации
+                        // Require authentication for all other API endpoints
+                        .requestMatchers("/api/**").authenticated()
+                        // Permit all other requests (non-existing endpoints)
+                        .anyRequest().permitAll())
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint) // Обработка 401 ошибок
                         .accessDeniedHandler(jwtAccessDeniedHandler)) // Обработка 403 ошибок

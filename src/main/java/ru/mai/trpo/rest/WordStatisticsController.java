@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,13 @@ public class WordStatisticsController {
         // Получаем статистику по username
         List<WordStatisticsDto> statistics = wordStatisticsService.getWordStatisticsByUsername(username);
 
+        return ResponseEntity.ok(statistics);
+    }
+
+    /** Получение статистики по ID файла */
+    @GetMapping("/words/file/{fileId}")
+    public ResponseEntity<List<WordStatisticsDto>> getWordStatisticsByFileId(@PathVariable Long fileId) {
+        List<WordStatisticsDto> statistics = wordStatisticsService.getWordStatisticsByFileId(fileId);
         return ResponseEntity.ok(statistics);
     }
 }

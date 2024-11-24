@@ -112,4 +112,19 @@ public class WordStatisticsService {
                 .collect(Collectors.toList()));
         return dto;
     }
+
+    public List<WordStatisticsDto> getWordStatisticsByFileId(Long fileId) {
+        // Проверяем, существует ли текст с таким ID
+        Text text = textRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("Файл с таким ID не найден"));
+
+        // Получаем предложения, связанные с текстом
+        List<Sentence> sentences = sentenceRepository.findByTextTextId(fileId);
+
+        // Собираем статистику по словам из предложений
+        List<Tuple> rawStatistics = wordRepository.findWordStatisticsByTextId(fileId);
+
+        // Преобразуем сырые данные в DTO
+        return mapToWordStatisticsDto(rawStatistics);
+    }
 }

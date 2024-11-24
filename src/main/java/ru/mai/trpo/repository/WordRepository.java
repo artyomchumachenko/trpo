@@ -32,4 +32,16 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     List<Tuple> findRawWordStatistics();
 
     List<Word> findBySentenceSentenceId(Long sentenceId);
+
+    @Query("""
+    SELECT w.wordText AS wordText, 
+           sr.description AS roleDescription, 
+           COUNT(w) AS count
+    FROM Word w
+    JOIN w.syntacticRole sr
+    WHERE w.sentence.text.textId = :fileId
+    GROUP BY w.wordText, sr.description
+    ORDER BY w.wordText
+    """)
+    List<Tuple> findWordStatisticsByTextId(@Param("fileId") Long fileId);
 }

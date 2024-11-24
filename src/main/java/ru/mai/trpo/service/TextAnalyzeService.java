@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +28,7 @@ import ru.mai.trpo.repository.SentenceRepository;
 import ru.mai.trpo.repository.SyntacticRoleRepository;
 import ru.mai.trpo.repository.TextRepository;
 import ru.mai.trpo.repository.WordRepository;
+import ru.mai.trpo.rest.MockController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
