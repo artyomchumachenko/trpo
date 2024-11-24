@@ -118,13 +118,26 @@ public class WordStatisticsService {
         Text text = textRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("Файл с таким ID не найден"));
 
-        // Получаем предложения, связанные с текстом
-        List<Sentence> sentences = sentenceRepository.findByTextTextId(fileId);
-
         // Собираем статистику по словам из предложений
         List<Tuple> rawStatistics = wordRepository.findWordStatisticsByTextId(fileId);
 
         // Преобразуем сырые данные в DTO
         return mapToWordStatisticsDto(rawStatistics);
+    }
+
+    public WordStatisticsDto getWordStatisticsByWord(String word) {
+        // Получаем статистику для указанного слова из репозитория
+        List<Tuple> rawStatistics = wordRepository.findWordStatisticsForWord(word);
+
+        // Преобразуем данные в список SyntacticRoleCountDto
+        List<SyntacticRoleCountDto> syntacticRoles = rawStatistics.stream()
+                .map(tuple -> new SyntacticRoleCountDto(
+                        tuple.get("roleDescription", String.class),
+                        tuple.get("count", Long.class)
+                ))
+                .collect(Collectors.toList());
+
+        // Создаем и возвращаем объект WordStatisticsDto
+        return new WordStatisticsDto(word, syntacticRoles);
     }
 }

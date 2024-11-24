@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.mai.trpo.configuration.jwt.JwtTokenProvider;
@@ -45,6 +46,15 @@ public class WordStatisticsController {
     @GetMapping("/words/file/{fileId}")
     public ResponseEntity<List<WordStatisticsDto>> getWordStatisticsByFileId(@PathVariable Long fileId) {
         List<WordStatisticsDto> statistics = wordStatisticsService.getWordStatisticsByFileId(fileId);
+        return ResponseEntity.ok(statistics);
+    }
+
+    /** Новый эндпоинт для получения статистики по конкретному слову */
+    @GetMapping("/words/search")
+    public ResponseEntity<WordStatisticsDto> getWordStatisticsByWord(
+            @RequestParam String word) {
+        // Получаем статистику для указанного слова
+        WordStatisticsDto statistics = wordStatisticsService.getWordStatisticsByWord(word);
         return ResponseEntity.ok(statistics);
     }
 }

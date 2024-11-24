@@ -44,4 +44,13 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     ORDER BY w.wordText
     """)
     List<Tuple> findWordStatisticsByTextId(@Param("fileId") Long fileId);
+
+    @Query("""
+    SELECT sr.description AS roleDescription, COUNT(w) AS count
+    FROM Word w
+    JOIN w.syntacticRole sr
+    WHERE w.wordText = :word
+    GROUP BY sr.description
+    """)
+    List<Tuple> findWordStatisticsForWord(@Param("word") String word);
 }
