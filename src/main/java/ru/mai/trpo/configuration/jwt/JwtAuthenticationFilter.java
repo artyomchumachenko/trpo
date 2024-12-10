@@ -2,12 +2,8 @@ package ru.mai.trpo.configuration.jwt;
 
 import java.io.IOException;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,6 +12,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import ru.mai.trpo.configuration.jwt.service.CustomUserDetailsService;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -26,15 +26,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
-                setAuthenticationContext(jwt, request);
+            if (jwt == null || !jwtTokenProvider.validateToken(jwt)) {
+                throw new AuthenticationException("Токен отсутствует или недействителен") {};
             }
+
+            setAuthenticationContext(jwt, request);
+        } catch (AuthenticationException e) {
+            SecurityContextHolder.clearContext(); // Очистка контекста безопасности
+            logger.error("Ошибка аутентификации: ", e);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            return; // Прекращаем выполнение фильтров
         } catch (Exception e) {
             logger.error("Не удалось установить аутентификацию пользователя в контекст", e);
         }

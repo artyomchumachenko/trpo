@@ -4,12 +4,16 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Класс данных ответа от анализатора текста на Python
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SentenceResponseDto {
     private String sentence;
     private List<String> words;
