@@ -2,7 +2,7 @@ package ru.mai.trpo.client;
 
 import java.nio.charset.StandardCharsets;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -41,7 +41,7 @@ public class TextAnalyzePyModelClient {
                 // Настройка для обработки UTF-8
                 .additionalMessageConverters(
                         new MappingJackson2HttpMessageConverter(
-                                new ObjectMapper().configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false)
+                                new ObjectMapper().configure(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), false)
                         ),
                         new StringHttpMessageConverter(StandardCharsets.UTF_8)
                 )

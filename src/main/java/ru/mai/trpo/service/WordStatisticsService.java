@@ -48,7 +48,7 @@ public class WordStatisticsService {
                         text.getTextId(),
                         text.getFileName(),
                         text.getUploadDate()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<WordStatisticsDto> mapToWordStatisticsDto(List<Tuple> rawStatistics) {
@@ -66,7 +66,7 @@ public class WordStatisticsService {
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByKey()) // Сортировка по алфавиту
                 .map(entry -> new WordStatisticsDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public TextAnalysisResultDto getAnalysisResult(Long textId, String username) {
@@ -88,7 +88,7 @@ public class WordStatisticsService {
 
                     return mapToSentenceResponseDto(sentence, words);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // Формируем результат
         TextAnalysisResultDto result = new TextAnalysisResultDto();
@@ -102,14 +102,14 @@ public class WordStatisticsService {
     private SentenceResponseDto mapToSentenceResponseDto(Sentence sentence, List<Word> words) {
         SentenceResponseDto dto = new SentenceResponseDto();
         dto.setSentence(sentence.getContent());
-        dto.setWords(words.stream().map(Word::getWordText).collect(Collectors.toList()));
-        dto.setLemmas(words.stream().map(Word::getLemma).collect(Collectors.toList()));
+        dto.setWords(words.stream().map(Word::getWordText).toList());
+        dto.setLemmas(words.stream().map(Word::getLemma).toList());
         dto.setPosTags(words.stream()
                 .map(word -> word.getPosTag() != null ? word.getPosTag().getCode() : null)
-                .collect(Collectors.toList()));
+                .toList());
         dto.setDepTags(words.stream()
                 .map(word -> word.getSyntacticRole() != null ? word.getSyntacticRole().getCode() : null)
-                .collect(Collectors.toList()));
+                .toList());
         return dto;
     }
 
@@ -135,7 +135,7 @@ public class WordStatisticsService {
                         tuple.get("roleDescription", String.class),
                         tuple.get("count", Long.class)
                 ))
-                .collect(Collectors.toList());
+                .toList();
 
         // Создаем и возвращаем объект WordStatisticsDto
         return new WordStatisticsDto(word, syntacticRoles);
