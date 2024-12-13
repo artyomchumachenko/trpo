@@ -19,6 +19,19 @@ import ru.mai.trpo.configuration.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Конфигурация системы безопасности приложения.
+ * <p>
+ * Класс отвечает за настройку Spring Security:
+ * <ul>
+ *     <li>Включение CORS</li>
+ *     <li>Отключение CSRF</li>
+ *     <li>Установка политики сессии "STATELESS"</li>
+ *     <li>Настройка правил авторизации для различных запросов</li>
+ *     <li>Добавление JWT-фильтра для аутентификации</li>
+ *     <li>Определение точек входа при аутентификации/авторизации</li>
+ * </ul>
+ */
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -28,33 +41,48 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
+    /**
+     * Определяет цепочку фильтров безопасности.
+     *
+     * @param http объект типа {@link HttpSecurity} для настройки параметров безопасности
+     * @return объект {@link SecurityFilterChain}, описывающий конфигурацию безопасности
+     * @throws Exception в случае ошибок настройки
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configure(http)) // Включаем CORS
-                .csrf(AbstractHttpConfigurer::disable) // Отключаем CSRF
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Устанавливаем политику сессии
+                .cors(cors -> cors.configure(http))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Allow unauthenticated access to login and registration endpoints
                         .requestMatchers("/api/user/login", "/api/user/registration").permitAll()
-                        // Require authentication for all other API endpoints
                         .requestMatchers("/api/**").authenticated()
-                        // Permit all other requests (non-existing endpoints)
                         .anyRequest().permitAll())
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint) // Обработка 401 ошибок
-                        .accessDeniedHandler(jwtAccessDeniedHandler)) // Обработка 403 ошибок
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    /**
+     * Определяет кодировщик паролей для хранения в зашифрованном виде.
+     *
+     * @return объект {@link PasswordEncoder}, реализующий шифрование паролей
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Создает менеджер аутентификации на основе конфигурации Spring Security.
+     *
+     * @param authenticationConfiguration объект конфигурации аутентификации
+     * @return объект {@link AuthenticationManager} для проверки учетных данных пользователей
+     * @throws Exception в случае ошибок инициализации менеджера аутентификации
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();

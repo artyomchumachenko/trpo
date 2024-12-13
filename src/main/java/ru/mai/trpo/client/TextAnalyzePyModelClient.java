@@ -22,7 +22,7 @@ import ru.mai.trpo.dto.integration.TextRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Клиент для взаимодействия с моделью на Python
+ * Клиент для отправки запросов в модель на Python (PyModel)
  */
 @Component
 @Slf4j
@@ -49,8 +49,8 @@ public class TextAnalyzePyModelClient {
     }
 
     /**
-     * Метод для отправки POST запроса в PyModel для анализа текста
-     * @param requestDto Объект данных для тела запроса
+     * Метод для отправки POST запроса в PyModel на анализ текста
+     * @param requestDto Тело запроса
      * @return Массив проанализированных предложений с помощью PyModel
      */
     public SentenceResponseDto[] analyzeText(TextRequestDto requestDto) {

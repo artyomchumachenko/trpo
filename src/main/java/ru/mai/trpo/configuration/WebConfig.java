@@ -8,18 +8,29 @@ import ru.mai.trpo.configuration.properties.OutsideRequestsProperties;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Конфигурация веб-среды, включая настройку CORS.
+ * <p>
+ * Класс настраивает разрешенные источники, методы и заголовки для междоменных запросов (CORS),
+ * а также определяет возможность использования учетных данных (cookies).
+ */
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
     private final OutsideRequestsProperties properties;
 
+    /**
+     * Настраивает правила CORS для всех путей приложения.
+     *
+     * @param registry реестр CORS-настроек
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(properties.front()) // Разрешаем запросы с фронтенда
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Включите OPTIONS для предварительных запросов CORS
-                .allowedHeaders("*") // Разрешаем все заголовки, включая Authorization
-                .allowCredentials(true); // Если используете cookies или сессионные данные
+                .allowedOrigins(properties.front())
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

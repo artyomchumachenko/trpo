@@ -23,6 +23,18 @@ import ru.mai.trpo.repository.WordRepository;
 import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Сервис для работы со статистикой по словам.
+ * <p>
+ * Предоставляет методы для получения различной статистики по словам, анализируемым в системе:
+ * <ul>
+ *     <li>Общей статистики по всем словам</li>
+ *     <li>Статистики по конкретному пользователю</li>
+ *     <li>Списка проанализированных файлов для конкретного пользователя</li>
+ *     <li>Статистики по конкретному файлу</li>
+ *     <li>Статистики по конкретному слову</li>
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class WordStatisticsService {
@@ -32,16 +44,34 @@ public class WordStatisticsService {
     private final SentenceRepository sentenceRepository;
     private final UserService userService;
 
+    /**
+     * Получает общую статистику по всем словам, встречающимся в тексте, включая количество их употреблений
+     * и связанные с ними синтаксические роли.
+     *
+     * @return список объектов {@link WordStatisticsDto} с детализацией по каждому слову
+     */
     public List<WordStatisticsDto> getWordStatistics() {
         List<Tuple> rawStatistics = wordRepository.findRawWordStatistics();
         return mapToWordStatisticsDto(rawStatistics);
     }
 
+    /**
+     * Получает статистику слов для определённого пользователя.
+     *
+     * @param username имя пользователя
+     * @return список {@link WordStatisticsDto} со статистикой слов, принадлежащих текстам данного пользователя
+     */
     public List<WordStatisticsDto> getWordStatisticsByUsername(String username) {
         List<Tuple> rawStatistics = wordRepository.findWordStatisticsByUsername(username);
         return mapToWordStatisticsDto(rawStatistics);
     }
 
+    /**
+     * Получает список метаданных о ранее проанализированных файлах для пользователя.
+     *
+     * @param username имя пользователя
+     * @return список {@link FileMetadataDto}, содержащий ID текста, имя файла и дату загрузки
+     */
     public List<FileMetadataDto> getAnalyzedFilesForUser(String username) {
         return textRepository.findByUserUsername(username).stream()
                 .map(text -> new FileMetadataDto(
@@ -51,6 +81,81 @@ public class WordStatisticsService {
                 .toList();
     }
 
+    /**
+     * Получает результаты анализа конкретного текста по его ID для указанного пользователя.
+     *
+     * @param textId ID текста
+     * @param username имя пользователя
+     * @return объект {@link TextAnalysisResultDto}, содержащий детализированные результаты анализа текста
+     * @throws IllegalArgumentException если текст с таким ID не найден
+     * @throws AccessDeniedException если пользователь не имеет доступа к данному тексту
+     */
+    public TextAnalysisResultDto getAnalysisResult(Long textId, String username) {
+        Text text = textRepository.findById(textId)
+                .orElseThrow(() -> new IllegalArgumentException("Файл с таким ID не найден"));
+
+        User user = userService.getUserByUsername(username);
+        if (!user.equals(text.getUser())) {
+            throw new AccessDeniedException("У вас нет доступа к этому файлу");
+        }
+
+        List<Sentence> sentences = sentenceRepository.findByTextTextId(text.getTextId());
+
+        List<SentenceResponseDto> analysisResults = sentences.stream()
+                .map(sentence -> {
+                    List<Word> words = wordRepository.findBySentenceSentenceId(sentence.getSentenceId());
+                    return mapToSentenceResponseDto(sentence, words);
+                })
+                .toList();
+
+        TextAnalysisResultDto result = new TextAnalysisResultDto();
+        result.setFileId(text.getTextId());
+        result.setFileName(text.getFileName());
+        result.setAnalysisResults(analysisResults);
+
+        return result;
+    }
+
+    /**
+     * Получает статистику слов для конкретного файла по его ID.
+     *
+     * @param fileId ID файла (текста)
+     * @return список {@link WordStatisticsDto} для указанного файла
+     * @throws IllegalArgumentException если текст с таким ID не найден
+     */
+    public List<WordStatisticsDto> getWordStatisticsByFileId(Long fileId) {
+        textRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("Файл с таким ID не найден"));
+
+        List<Tuple> rawStatistics = wordRepository.findWordStatisticsByTextId(fileId);
+        return mapToWordStatisticsDto(rawStatistics);
+    }
+
+    /**
+     * Получает статистику для конкретного слова.
+     *
+     * @param word слово, для которого требуется получить статистику
+     * @return объект {@link WordStatisticsDto}, содержащий синтаксические роли и их количество для данного слова
+     */
+    public WordStatisticsDto getWordStatisticsByWord(String word) {
+        List<Tuple> rawStatistics = wordRepository.findWordStatisticsForWord(word);
+
+        List<SyntacticRoleCountDto> syntacticRoles = rawStatistics.stream()
+                .map(tuple -> new SyntacticRoleCountDto(
+                        tuple.get("roleDescription", String.class),
+                        tuple.get("count", Long.class)
+                ))
+                .toList();
+
+        return new WordStatisticsDto(word, syntacticRoles);
+    }
+
+    /**
+     * Преобразует сырые данные из запросов к базе данных в список DTO объектов {@link WordStatisticsDto}.
+     *
+     * @param rawStatistics список кортежей (Tuple), полученных из репозитория
+     * @return список объектов {@link WordStatisticsDto}
+     */
     private List<WordStatisticsDto> mapToWordStatisticsDto(List<Tuple> rawStatistics) {
         return rawStatistics.stream()
                 .collect(Collectors.groupingBy(
@@ -64,41 +169,18 @@ public class WordStatisticsService {
                         )
                 ))
                 .entrySet().stream()
-                .sorted(Map.Entry.comparingByKey()) // Сортировка по алфавиту
+                .sorted(Map.Entry.comparingByKey()) // сортировка по названию слова
                 .map(entry -> new WordStatisticsDto(entry.getKey(), entry.getValue()))
                 .toList();
     }
 
-    public TextAnalysisResultDto getAnalysisResult(Long textId, String username) {
-        // Получаем текст по ID
-        Text text = textRepository.findById(textId)
-                .orElseThrow(() -> new IllegalArgumentException("Файл с таким ID не найден"));
-        User user = userService.getUserByUsername(username);
-        if (!user.equals(text.getUser())) {
-            throw new AccessDeniedException("У вас нет доступа к этому файлу");
-        }
-
-        // Получаем предложения, связанные с текстом
-        List<Sentence> sentences = sentenceRepository.findByTextTextId(text.getTextId());
-
-        // Преобразуем предложения в SentenceResponseDto
-        List<SentenceResponseDto> analysisResults = sentences.stream()
-                .map(sentence -> {
-                    List<Word> words = wordRepository.findBySentenceSentenceId(sentence.getSentenceId());
-
-                    return mapToSentenceResponseDto(sentence, words);
-                })
-                .toList();
-
-        // Формируем результат
-        TextAnalysisResultDto result = new TextAnalysisResultDto();
-        result.setFileId(text.getTextId());
-        result.setFileName(text.getFileName());
-        result.setAnalysisResults(analysisResults);
-
-        return result;
-    }
-
+    /**
+     * Формирует DTO-объект для одного предложения и связанного с ним списка слов.
+     *
+     * @param sentence сущность предложения
+     * @param words список сущностей слов, связанных с данным предложением
+     * @return объект {@link SentenceResponseDto}, содержащий предложения, слова, леммы, POS-теги и синтаксические роли
+     */
     private SentenceResponseDto mapToSentenceResponseDto(Sentence sentence, List<Word> words) {
         SentenceResponseDto dto = new SentenceResponseDto();
         dto.setSentence(sentence.getContent());
@@ -111,33 +193,5 @@ public class WordStatisticsService {
                 .map(word -> word.getSyntacticRole() != null ? word.getSyntacticRole().getCode() : null)
                 .toList());
         return dto;
-    }
-
-    public List<WordStatisticsDto> getWordStatisticsByFileId(Long fileId) {
-        // Проверяем, существует ли текст с таким ID
-        Text text = textRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("Файл с таким ID не найден"));
-
-        // Собираем статистику по словам из предложений
-        List<Tuple> rawStatistics = wordRepository.findWordStatisticsByTextId(fileId);
-
-        // Преобразуем сырые данные в DTO
-        return mapToWordStatisticsDto(rawStatistics);
-    }
-
-    public WordStatisticsDto getWordStatisticsByWord(String word) {
-        // Получаем статистику для указанного слова из репозитория
-        List<Tuple> rawStatistics = wordRepository.findWordStatisticsForWord(word);
-
-        // Преобразуем данные в список SyntacticRoleCountDto
-        List<SyntacticRoleCountDto> syntacticRoles = rawStatistics.stream()
-                .map(tuple -> new SyntacticRoleCountDto(
-                        tuple.get("roleDescription", String.class),
-                        tuple.get("count", Long.class)
-                ))
-                .toList();
-
-        // Создаем и возвращаем объект WordStatisticsDto
-        return new WordStatisticsDto(word, syntacticRoles);
     }
 }

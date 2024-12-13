@@ -21,6 +21,15 @@ import ru.mai.trpo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST-контроллер для управления пользователями: регистрация и аутентификация.
+ * <p>
+ * Предоставляет следующие конечные точки:
+ * <ul>
+ *     <li>{@code POST /api/user/registration} – регистрация нового пользователя</li>
+ *     <li>{@code POST /api/user/login} – аутентификация пользователя и получение JWT-токена</li>
+ * </ul>
+ */
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -31,21 +40,32 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Регистрирует нового пользователя в системе.
+     *
+     * @param request объект запроса, содержащий данные для регистрации (имя пользователя и пароль)
+     * @return объект {@link ResponseEntity} с сообщением об успешной регистрации или ошибкой
+     */
     @PostMapping("/registration")
     public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) {
         if (userService.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().body("Пользователь с таким именем уже существует.");
         }
 
-        // Создаем нового пользователя
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Хэшируем пароль
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userService.saveUser(user);
         return ResponseEntity.ok("Пользователь успешно зарегистрирован.");
     }
 
+    /**
+     * Аутентифицирует пользователя по имени и паролю.
+     *
+     * @param request объект запроса, содержащий имя пользователя и пароль
+     * @return объект {@link ResponseEntity} с JWT-токеном при успешной аутентификации или ошибкой 401 при неверных учетных данных
+     */
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
         try {
